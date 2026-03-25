@@ -1,5 +1,4 @@
 import winsound
-import simpleaudio as sa
 import os
 
 class Protocoles : 
