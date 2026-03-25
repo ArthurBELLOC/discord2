@@ -54,7 +54,7 @@ async def send_messages(websocket):
                     loop
                 )
             else:
-                # Sinon c'est du chat normal
+                # Sinon msg
                 asyncio.run_coroutine_threadsafe(
                     websocket.send(f"{pseudo}: {text}"),
                     loop

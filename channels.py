@@ -67,6 +67,5 @@ class ChannelManager:
             return
         chan["clients"].discard(websocket)
         self.client_channel.pop(websocket, None)
-        # Optionnel : supprimer le channel s'il est vide
         if not chan["clients"]:
             self.channels.pop(chan_name, None)

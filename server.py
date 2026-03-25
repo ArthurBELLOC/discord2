@@ -12,7 +12,7 @@ ws_to_user_id = {}
 async def handler(websocket):
     try:
         async for message in websocket:
-            # 1) Si c'est une commande (ex: /create nom mdp)
+            # commandes /
             if message.startswith("/"):
                 parts = message.split()
                 cmd = parts[0]
@@ -87,13 +87,14 @@ async def handler(websocket):
                 else:
                     await websocket.send("[Serveur] Commande inconnue.")
 
-                continue  # on ne broadcast pas les commandes
+                continue
 
             
             peers = manager.get_peers(websocket)
             if not peers:
                 continue
 
+            # infos pour bdd
             user_id = ws_to_user_id.get(websocket)
             if user_id is None:
                 await websocket.send("[Serveur] Tu dois être connecté (/register ou /login) pour parler.")
@@ -102,7 +103,7 @@ async def handler(websocket):
             channel_id = manager.channels[channel_name]["id"]
             save_message(channel_id, user_id, message)
 
-            # Broadcast aux autres du même channel
+            # partage
             to_remove = []
             for client in peers:
                 if client is websocket:
