@@ -2,7 +2,7 @@ import asyncio
 import websockets
 from channels import ChannelManager
 from protocole import Protocoles
-from datab import create_user, get_user_by_credentials
+from datab import create_user, get_user_by_credentials, save_message, get_histo
 
 manager = ChannelManager()
 protocole = Protocoles()
@@ -40,6 +40,10 @@ async def handler(websocket):
                     status = manager.rjchannel(name, mdp, websocket)
                     if status == "ok":
                         await websocket.send(f"[Serveur] Tu as rejoint '{name}'.")
+                        channel_id = manager.channels[name]["id"]
+                        history = get_histo(channel_id)
+                        for username, content, created_at in history : 
+                            await websocket.send(f"{content}")
                     elif status == "not_found":
                         await websocket.send(f"[Serveur] Channel '{name}' introuvable.")
                     elif status == "bad_password":
@@ -94,6 +98,9 @@ async def handler(websocket):
             if user_id is None:
                 await websocket.send("[Serveur] Tu dois être connecté (/register ou /login) pour parler.")
                 continue
+            channel_name = manager.client_channel.get(websocket)
+            channel_id = manager.channels[channel_name]["id"]
+            save_message(channel_id, user_id, message)
 
             # Broadcast aux autres du même channel
             to_remove = []
@@ -107,6 +114,9 @@ async def handler(websocket):
 
             for c in to_remove:
                 manager.leave(c)
+
+    except Exception as e:
+        print("[SERVER ERROR]", e)
 
     finally:
         # Nettoyage à la déconnexion

@@ -6,22 +6,23 @@ class Protocoles :
     def __init__(self):
         
         base_dir = os.path.dirname(__file__)
-        sound_path = os.path.join(base_dir, "sons", "NOKIA-2.wav")
-        self.son = sa.WaveObject.from_wave_file(sound_path)
-        self.play_obj = None
+        self.sound_path = os.path.join(base_dir, "sons", "Tuturu.wav")
+        self.call_path = os.path.join(base_dir, "sons", "NOKIA-2.wav")
+        
+
 
 
     def son_notif(self) : 
-        winsound.Beep(800, 150)
+        winsound.PlaySound(
+            self.sound_path,
+            winsound.SND_FILENAME | winsound.SND_ASYNC
+        )
 
     def appel(self):
-        
-        self.play_obj = self.son.play()
+        winsound.PlaySound(
+            self.call_path,
+            winsound.SND_FILENAME | winsound.SND_ASYNC
+        )
 
     def stop(self):
-        try:
-            if self.play_obj and self.play_obj.is_playing():
-                self.play_obj.stop()
-                self.play_obj = None
-        except Exception as e:
-            print("[DEBUG] Erreur dans stop():", e)
+        winsound.PlaySound(None, 0)

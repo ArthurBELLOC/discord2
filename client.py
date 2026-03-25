@@ -40,13 +40,13 @@ async def send_messages(websocket):
             if not text:
                 continue
 
-            if text == "/call" :
+            if text == "*call" :
                 protocole.appel()
-                continue
+                
 
-            if text == "/stop" :
+            if text == "*stop" :
                 protocole.stop()
-                continue
+                
 
             if text.startswith("/"):
                 asyncio.run_coroutine_threadsafe(
