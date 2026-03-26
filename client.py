@@ -68,11 +68,12 @@ async def send_messages(websocket):
 
             if text == "/cam on":
                 if camera.start_local() :
-                    
+                    asyncio.run_coroutine_threadsafe(websocket.send(f"__CAM_ON__:{pseudo}"),loop)
                     camera_task = asyncio.run_coroutine_threadsafe(camera.stream_to_websocket(websocket),loop)
                 continue
 
             if text == "/cam off":
+                asyncio.run_coroutine_threadsafe(websocket.send(f"__CAM_OFF__:{pseudo}"),loop)
                 camera.stop_local()
                 
                 continue               

@@ -143,7 +143,8 @@ async def handler(websocket):
                 continue
             channel_name = manager.client_channel.get(websocket)
             channel_id = manager.channels[channel_name]["id"]
-            save_message(channel_id, user_id, message)
+            if message.startswith("__CAM_") is not True :
+                save_message(channel_id, user_id, message)
 
             # partage
             to_remove = []
