@@ -12,6 +12,48 @@ ws_to_user_id = {}
 async def handler(websocket):
     try:
         async for message in websocket:
+
+            #cam
+            # frames webcam : messages binaires
+            if isinstance(message, bytes):
+                peers = manager.get_peers(websocket)
+                if not peers:
+                    continue
+
+                to_remove = []
+                for client in peers:
+                    if client is websocket:
+                        continue
+                    try:
+                        await client.send(message)
+                    except:
+                        to_remove.append(client)
+
+                for c in to_remove:
+                    manager.leave(c)
+
+                continue
+
+            # messages de contrôle caméra : messages texte spéciaux
+            if isinstance(message, str) and message.startswith("__CAM_"):
+                peers = manager.get_peers(websocket)
+                if not peers:
+                    continue
+
+                to_remove = []
+                for client in peers:
+                    if client is websocket:
+                        continue
+                    try:
+                        await client.send(message)
+                    except:
+                        to_remove.append(client)
+
+                for c in to_remove:
+                    manager.leave(c)
+
+                continue
+
             # commandes /
             if message.startswith("/"):
                 parts = message.split()

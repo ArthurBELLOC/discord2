@@ -2,9 +2,11 @@ import asyncio
 import websockets
 import threading
 from protocole import Protocoles
+from camera import CameraManager
 
 SERVER_URL = "ws://localhost:9000"
 protocole = Protocoles()
+camera = CameraManager()
 
 ch = {"1", "2"}
 x = None
@@ -23,18 +25,35 @@ while x not in ch:
 async def listen_messages(websocket):
     try:
         async for message in websocket:
+
+            if isinstance(message, bytes):
+                camera.show_remote_frame(message)
+                continue
+
+            if isinstance(message, str) and message.startswith("__CAM_OFF__"):
+                camera.close_remote_window()
+                print("\n[CAM] Webcam distante arrêtée.")
+                print("> ", end="", flush=True)
+                continue
+
             print("\n" + message)
             print("> ", end="", flush=True)
             if not message.startswith(f"{pseudo}:"):
                protocole.son_notif()
     except websockets.ConnectionClosed:
         print("\n[Déconnecté du serveur]")
+    finally : 
+        camera.close_remote_window()
 
 
 async def send_messages(websocket):
+    global camera_task
     loop = asyncio.get_event_loop()
 
     def read_input():
+        nonlocal loop
+        global camera_task
+
         while True:
             text = input("> ").strip()
             if not text:
@@ -46,7 +65,17 @@ async def send_messages(websocket):
 
             if text == "*stop" :
                 protocole.stop()
+
+            if text == "/cam on":
+                if camera.start_local() :
+                    
+                    camera_task = asyncio.run_coroutine_threadsafe(camera.stream_to_websocket(websocket),loop)
+                continue
+
+            if text == "/cam off":
+                camera.stop_local()
                 
+                continue               
 
             if text.startswith("/"):
                 asyncio.run_coroutine_threadsafe(
