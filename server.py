@@ -3,6 +3,7 @@ import websockets
 from channels import ChannelManager
 from protocole import Protocoles
 from datab import create_user, get_user_by_credentials, save_message, get_histo
+import json
 
 manager = ChannelManager()
 protocole = Protocoles()
@@ -53,6 +54,35 @@ async def handler(websocket):
                     manager.leave(c)
 
                 continue
+
+            if isinstance(message, str):
+                try:
+                    data = json.loads(message)
+                except json.JSONDecodeError:
+                    data = None
+
+                if isinstance(data, dict) and data.get("kind") == "rtc":
+                    peers = manager.get_peers(websocket)
+
+                    if not peers:
+                        await websocket.send("[RTC] Tu dois être dans un channel pour lancer la voix.")
+                        continue
+
+                    to_remove = []
+
+                    for client in peers:
+                        if client is websocket:
+                            continue
+
+                        try:
+                            await client.send(message)
+                        except:
+                            to_remove.append(client)
+
+                    for c in to_remove:
+                        manager.leave(c)
+
+                    continue
 
             # commandes /
             if message.startswith("/"):
