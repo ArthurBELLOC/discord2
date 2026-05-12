@@ -5,6 +5,7 @@ from protocole import Protocoles
 from camera import CameraManager
 import json
 from aiortc import RTCPeerConnection, RTCSessionDescription
+from aiortc.contrib.media import MediaPlayer, MediaRecorder
 
 SERVER_URL = "ws://localhost:9000"
 protocole = Protocoles()
@@ -124,14 +125,22 @@ async def start_voice(websocket):
         return
 
     rtc_pc = RTCPeerConnection()
+    pc = rtc_pc
 
-    @rtc_pc.on("connectionstatechange")
+    @pc.on("connectionstatechange")
     async def on_connectionstatechange():
-        print(f"[VOICE] État WebRTC : {rtc_pc.connectionState}")
+        print(f"[VOICE] État WebRTC : {pc.connectionState}")
 
-        if rtc_pc.connectionState in ["failed", "closed", "disconnected"]:
+        if pc.connectionState in ["failed", "closed", "disconnected"]:
             await stop_voice()
-
+    player = MediaPlayer("default", format="pulse", options={"channels": "1", "sample_rate": "16000"}) 
+    @rtc_pc.on("track")
+    async def on_track(track):
+        print(f"[VOICE] Track reçu : {track.kind}")
+        if track.kind == "audio":
+            recorder = MediaRecorder("defaulyt", format="pulse")
+            await recorder.start()
+            recorder.addTrack(track)
     offer = await rtc_pc.createOffer()
     await rtc_pc.setLocalDescription(offer)
 
@@ -145,7 +154,7 @@ async def start_voice(websocket):
     await websocket.send(json.dumps(msg))
     print("[VOICE] Offer envoyée.")
 
-async def stop_voice():
+async def stop_voice(websocket=None):
     global rtc_pc
 
     if rtc_pc is None:
@@ -169,10 +178,11 @@ async def handle_rtc_message(websocket, data):
             return
 
         rtc_pc = RTCPeerConnection()
+        pc = rtc_pc
 
-        @rtc_pc.on("connectionstatechange")
+        @pc.on("connectionstatechange")
         async def on_connectionstatechange():
-            print(f"[VOICE] État WebRTC : {rtc_pc.connectionState}")
+            print(f"[VOICE] État WebRTC : {pc.connectionState}")
 
         offer = RTCSessionDescription(
             sdp=data["sdp"],
