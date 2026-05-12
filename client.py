@@ -20,7 +20,7 @@ while x not in ch:
         mdp = input("\nTon mot de passe : ").strip()    
     else : 
         pseudo = input("Pseudo : ").strip()
-        mdp = input("\nMot de passe : ").strip()
+        mdp = input("\nMot de passe : \n").strip()
 
 
 
@@ -72,12 +72,12 @@ async def send_messages(websocket):
             if not text:
                 continue
 
-            if text == "*call" :
-                protocole.appel()
+            #if text == "*call" :
+            #    protocole.appel()
                 
 
-            if text == "*stop" :
-                protocole.stop()
+            #if text == "*stop" :
+            #    protocole.stop()
 
             if text == "/cam on":
                 if camera.start_local() :
@@ -132,8 +132,6 @@ async def start_voice(websocket):
         if rtc_pc.connectionState in ["failed", "closed", "disconnected"]:
             await stop_voice()
 
-    # Pour l'instant, pas encore de piste audio.
-    # On commence juste par tester offer / answer / signaling.
     offer = await rtc_pc.createOffer()
     await rtc_pc.setLocalDescription(offer)
 
