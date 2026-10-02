@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environnements virtuels / Poetry
+.venv/
+venv/
+env/
+
+# Secrets & config locale
+.env
+.env.*
+!.env.example
+
+# Base de données locale
+*.sqlite3
+*.db
+postgres-data/
+
+# Médias volumineux (sons, vidéos) — à héberger hors du repo ou via git-lfs
+sons/*.wav
+sons/*.mp3
+
+# Outils
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Éditeurs / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

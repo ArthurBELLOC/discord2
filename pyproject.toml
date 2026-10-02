@@ -1,0 +1,26 @@
+[project]
+name = "discord2"
+version = "0.1.0"
+description = "Chat client/serveur en Python (websockets + PostgreSQL + WebRTC)"
+authors = [
+    {name = "Arthur Belloc"}
+]
+requires-python = ">=3.12"
+dependencies = [
+    "websockets (>=17.1,<18.0)",
+    "psycopg[binary] (>=3.3.6,<4.0.0)",
+    "opencv-python (>=5.0.0.93,<6.0.0.0)",
+    "aiortc (>=1.15.0,<2.0.0)",
+    "numpy (>=2.5.3,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.16.10,<0.17.0)",
+    "pytest (>=9.1.1,<10.0.0)"
+]
